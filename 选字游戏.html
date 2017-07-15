@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>选字游戏</title>
+		<style type="text/css">
+			* { margin:0; padding: 0; font-family: simsun; }
+			#wrap { width: 420px; margin: 0 auto; position: relative; min-height: 540px; max-height: 640px; border: 1px #ccc solid; border-radius: 5px; background: #dcdee0; }
+			#time { position: absolute; left: 20px; top: 20px; font-size: 30px; }
+			#scoring { position: absolute; top: 20px; right: 20px; font-size: 30px; }
+			#show { font-size: 10em; top: 90px; left: 126px; position: absolute; }
+			#menu { padding: 40px 30px; font-size: 30px; top: 250px; position: absolute; }
+			#list { position: absolute; left: 10px; bottom: 20px; list-style: none; }
+			#list li { float: left; font-size: 5em; }
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="time">剩余时间：10</div>
+			<div id="scoring">完成：0</div>
+			<div id="show">红</div>
+			<div id="menu">根据上面的字的颜色从下面选择正确的字，选择正确自动开始</div>
+			<ul id="list">
+				<li>绿</li>
+				<li>蓝</li>
+				<li>黑</li>
+				<li>黄</li>
+				<li>红</li>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript">
+
+		// 面向过程  观察程序运行的顺序
+		// 1、每次打开页面 -》 大字的颜色，字
+		// 2、每次打开页面 -》 小字的颜色，字
+		// -》不重复的随机数做下标
+		// 3、点击 某个li -》 上面的字的颜色从下面选择正确的字
+// fonts[大字的颜色下标]==当前点击的li.innerHTML
+		// 点对之后-》大字的颜色，字   小字的颜色，字
+		// 点对之后-》分数增加
+		// 点对第一次 开始定时器，时间--
+		// 时间=0 结束游戏， 不能点
+
+var fonts = ["黑", "黄", "红", "蓝", "绿"];
+var colors = ["black", "yellow", "red", "blue", "green"];
+		
+		// 分数
+		var count = 0;
+		// 时间
+		var seconds = 10;
+		var show = document.getElementById('show');
+		var lis = document.getElementsByTagName('li');
+		var bigColorIndex = 0;
+		// 刷新界面-》随机字和颜色
+		randomFontsColor();
+
+		for(var i = 0; i < lis.length; i++){
+			// 给li绑定点击事件
+			lis[i].onclick = function(){
+				// 点击某个li之后判断，大字的颜色和当前点击的li内容相等
+				// 执行if代表用户点对了
+				if (fonts[bigColorIndex] == this.innerHTML) {
+					// 点对之后分数++
+					count ++;
+					// 分数改变之后显示在界面上
+					document.getElementById("scoring").innerHTML = "完成：" + count;
+					// 刷新界面
+					randomFontsColor();
+
+
+					// 分数为1的时候开始计时
+					if (count == 1) {
+						// 开启计时
+						var timer = setInterval(function(){
+							// 每个一秒时间减少一秒
+							seconds--;
+							// 剩余时间刷新
+							document.getElementById("time").innerHTML = "剩余时间：" + seconds;
+							// 游戏时间为0，要结束游戏
+							// 弹框告诉用户结束，并且让li不能点击
+							if (seconds == 0) {
+								alert("游戏结束");
+								clearInterval(timer);
+								// 循环让li的onclick时间为null
+								// 清除点击方法
+								for(var k = 0; k < lis.length; k++){
+									lis[k].onclick = null;
+								}
+								
+							}
+						}, 1000);
+					}
+
+				}
+			}
+		}
+
+		// 刷新界面
+		function randomFontsColor(){
+			show.innerHTML = fonts[parseInt(Math.random()*5)];
+
+					bigColorIndex = parseInt(Math.random()*5);
+					show.style.color = colors[bigColorIndex];
+
+					var liColorsIndex = getNoRepeatArr();
+					var liFontsIndex = getNoRepeatArr();
+					for(var i = 0; i < lis.length; i++){
+						lis[i].innerHTML = fonts[liFontsIndex[i]];
+						lis[i].style.color = colors[liColorsIndex[i]];
+					}
+		}
+		function getNoRepeatArr(){
+			var arr = [];
+			for(var i = 0; i < 5; i++){
+				var num = parseInt(Math.random()*5);
+				for(var j = 0; j < i; j++){
+					if (num == arr[j]) {
+						break;
+					}
+				}
+				if (i == j) {
+					arr[i] = num;
+				} else {
+					i--;
+				}
+			}
+			return arr;	
+		}
+
+	</script>
+</html>
